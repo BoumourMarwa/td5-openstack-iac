@@ -20,18 +20,29 @@ env:
 jobs:
   deploy:
     runs-on: [self-hosted, openstack]
+
+    environment:
+      name: production
+
     concurrency:
       group: deploy-prod
       cancel-in-progress: false
+
     steps:
       - uses: actions/checkout@v5
 
       - name: Deploiement (creation ou mise a jour)
         run: |
           if openstack stack show infra-prod > /dev/null 2>&1; then
-            openstack stack update -t heat/infra-complete-v2.yaml --wait infra-prod
+            openstack stack update \
+              -t heat/infra-complete-v2.yaml \
+              --wait \
+              infra-prod
           else
-            openstack stack create -t heat/infra-complete-v2.yaml --wait infra-prod
+            openstack stack create \
+              -t heat/infra-complete-v2.yaml \
+              --wait \
+              infra-prod
           fi
 
       - name: Etat final
